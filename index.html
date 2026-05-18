@@ -293,12 +293,20 @@ function launchEmulator(game) {
   document.getElementById("emu-screen-title").textContent = game.name.toUpperCase();
   screen.style.display = "flex";
 
-  // Set Global Emulator Settings
-  window.EJS_player = "#game";
-  window.EJS_core = game.emuCore; 
-  window.EJS_gameUrl = game.romUrl; 
-  window.EJS_pathtodata = "data/"; // Relative path for GitHub Pages
-  window.EJS_startOnLoaded = true;
+// Set EmulatorJS globals
+      window.EJS_player        = "#game";
+      window.EJS_core          = game.emuCore;
+      window.EJS_gameUrl       = game.romUrl;
+      window.EJS_pathtodata    = "data/";
+      window.EJS_startOnLoaded = true;
+      window.EJS_color         = "#ff8c42";
+      window.EJS_backgroundColor = "#000000";
+      
+      // FIX 1: Forces US English so it stops searching for missing en-CA.json files
+      window.EJS_language      = "en-US"; 
+      
+      // FIX 2: EmulatorJS uses "a26" for Atari, not "atari2600" for the gameType
+      window.EJS_gameType      = game.system === "A26" ? "a26" : game.system.toLowerCase();
 
   const oldLoader = document.getElementById("ejs-loader");
   if (oldLoader) {
