@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE VAULT — Playing</title>
+<script>
+  // Set ALL globals synchronously before anything else loads
+  (function() {
+    var p = new URLSearchParams(window.location.search);
+    window.EJS_player          = "#game";
+    window.EJS_core            = p.get("core") || "atari2600";
+    window.EJS_gameUrl         = p.get("rom")  || "";
+    window.EJS_pathtodata      = "data/";
+    window.EJS_startOnLoaded   = true;
+    window.EJS_color           = "#ff8c42";
+    window.EJS_backgroundColor = "#000000";
+    window.EJS_language        = "en";
+  })();
+</script>
+</head>
+<body style="margin:0;padding:0;background:#000;">
+
+<div style="position:fixed;top:0;left:0;right:0;z-index:999;display:flex;align-items:center;gap:1rem;padding:8px 12px;background:#0a0a0f;border-bottom:1px solid #2a2a45;">
+  <a href="index.html" style="color:#00ffc8;font-family:monospace;font-size:13px;text-decoration:none;border:1px solid #2a2a45;padding:4px 12px;border-radius:3px;">← BACK TO VAULT</a>
+  <span id="game-title" style="color:#7070a0;font-family:monospace;font-size:13px;"></span>
+</div>
+
+<!-- EmulatorJS official pattern: plain div with explicit px size, no extra wrappers -->
+<div style="padding-top:44px;">
+  <div id="game" style="width:800px;height:600px;max-width:100%;"></div>
+</div>
+
+<script>
+  var p = new URLSearchParams(window.location.search);
+  document.getElementById("game-title").textContent = (p.get("title") || "").toUpperCase();
+</script>
+<script src="data/loader.js"></script>
+</body>
+</html>
