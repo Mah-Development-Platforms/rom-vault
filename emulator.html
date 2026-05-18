@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE VAULT — Playing</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #000; display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+  #topbar {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.6rem 1rem;
+    background: #0a0a0f;
+    border-bottom: 1px solid #2a2a45;
+    flex-shrink: 0;
+  }
+  #back-btn {
+    background: none; border: 1px solid #2a2a45; color: #00ffc8;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+    padding: 0.4rem 1rem; cursor: pointer; border-radius: 3px;
+    text-decoration: none; display: inline-block;
+  }
+  #back-btn:hover { border-color: #00ffc8; }
+  #game-title { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: #7070a0; letter-spacing: 0.1em; }
+  #game-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+  /* EmulatorJS target: fixed pixel size, plain block element */
+  #game {
+    width: 640px;
+    height: 480px;
+    display: block;
+  }
+</style>
+
+<script>
+  // Parse game params from URL — must happen before loader.js is parsed
+  (function() {
+    const p = new URLSearchParams(window.location.search);
+    const core  = p.get("core")  || "atari2600";
+    const rom   = p.get("rom")   || "";
+    const title = p.get("title") || "Game";
+
+    // Update page title
+    document.title = "THE VAULT — " + title;
+
+    // Set ALL EmulatorJS globals here in <head>, synchronously,
+    // before any EmulatorJS script has a chance to run
+    window.EJS_player          = "#game";
+    window.EJS_core            = core;
+    window.EJS_gameUrl         = rom;
+    window.EJS_pathtodata      = "data/";
+    window.EJS_startOnLoaded   = true;
+    window.EJS_color           = "#ff8c42";
+    window.EJS_backgroundColor = "#000000";
+    window.EJS_language        = "en";   // exact filename: data/localization/en.json
+  })();
+</script>
+</head>
+<body>
+
+<div id="topbar">
+  <a id="back-btn" href="index.html">← BACK TO VAULT</a>
+  <span id="game-title"></span>
+</div>
+
+<div id="game-wrap">
+  <div id="game"></div>
+</div>
+
+<script>
+  // Set the visible title from URL param
+  const p = new URLSearchParams(window.location.search);
+  document.getElementById("game-title").textContent = (p.get("title") || "").toUpperCase();
+</script>
+
+<!-- Load EmulatorJS LAST, after the DOM and all globals are ready -->
+<script src="data/loader.js"></script>
+
+</body>
+</html>

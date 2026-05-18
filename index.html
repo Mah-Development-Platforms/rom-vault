@@ -229,19 +229,6 @@
   </div>
 </div>
 
-<div id="emu-screen" style="display:none;position:fixed;inset:0;z-index:2000;background:#000;flex-direction:column;align-items:center;">
-  <div style="width:100%;display:flex;align-items:center;gap:1rem;padding:0.6rem 1rem;background:#0a0a0f;border-bottom:1px solid #2a2a45;flex-shrink:0;">
-    <button id="emu-back" style="background:none;border:1px solid #2a2a45;color:#00ffc8;font-family:'Share Tech Mono',monospace;font-size:0.75rem;padding:0.4rem 1rem;cursor:pointer;border-radius:3px;">← BACK TO VAULT</button>
-    <span id="emu-screen-title" style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;color:#7070a0;"></span>
-  </div>
-  <!-- EmulatorJS requires a plain div with explicit pixel dimensions, not flex/% sizing -->
-  <div id="emu-game-wrap" style="flex:1;display:flex;align-items:center;justify-content:center;width:100%;">
-    <div id="ejs-outer" style="width:640px;height:480px;max-width:100%;position:relative;">
-      <div id="game"></div>
-    </div>
-  </div>
-</div>
-
 <footer>
   <span>THE VAULT &mdash; Personal ROM Archive</span>
   <span>READY<span class="footer-blink"></span></span>
@@ -292,62 +279,14 @@ function closeModal() { document.getElementById("modal-backdrop").classList.remo
 document.getElementById("modal-close").onclick = closeModal;
 
 function launchEmulator(game) {
-  const screen = document.getElementById("emu-screen");
-  document.getElementById("emu-screen-title").textContent = game.name.toUpperCase();
-  screen.style.display = "flex";
-  document.body.style.overflow = "hidden";
-
-  // Size #ejs-outer responsively but with concrete pixels EmulatorJS can measure
-  const wrap = document.getElementById("emu-game-wrap");
-  const availH = wrap.offsetHeight || (window.innerHeight - 50);
-  const availW = wrap.offsetWidth  || window.innerWidth;
-  const scale  = Math.min(availW / 640, availH / 480);
-  const w = Math.floor(640 * scale);
-  const h = Math.floor(480 * scale);
-  const outer = document.getElementById("ejs-outer");
-  outer.style.width  = w + "px";
-  outer.style.height = h + "px";
-
-  // Reset the #game div cleanly
-  const gameDiv = document.getElementById("game");
-  gameDiv.innerHTML = "";
-  gameDiv.style.cssText = "width:" + w + "px;height:" + h + "px;";
-
-  // Set EmulatorJS globals — match the official docs exactly
-  window.EJS_player           = "#game";
-  window.EJS_core             = game.emuCore;   // "atari2600" or "nes" etc.
-  window.EJS_gameUrl          = game.romUrl;
-  window.EJS_pathtodata       = "data/";
-  window.EJS_startOnLoaded    = true;
-  window.EJS_color            = "#ff8c42";
-  window.EJS_backgroundColor  = "#000000";
-  window.EJS_disableAutoLang  = true;           // stops 404 hunting for en-CA.json
-
-  // Remove any previous loader script, then inject fresh
-  const old = document.getElementById("ejs-loader");
-  if (old) old.remove();
-  const s = document.createElement("script");
-  s.id  = "ejs-loader";
-  s.src = "data/loader.js";
-  document.body.appendChild(s);
+  const params = new URLSearchParams({
+    core:  game.emuCore,
+    rom:   game.romUrl,
+    title: game.name
+  });
+  window.location.href = "emulator.html?" + params.toString();
 }
 
-function exitEmulator() {
-  document.getElementById("emu-screen").style.display = "none";
-  document.body.style.overflow = "";
-  // Clear game div
-  const gameDiv = document.getElementById("game");
-  if (gameDiv) { gameDiv.innerHTML = ""; gameDiv.style.cssText = ""; }
-  // Remove loader and any EmulatorJS-injected scripts/styles
-  const old = document.getElementById("ejs-loader");
-  if (old) old.remove();
-  document.querySelectorAll("script[src*='emulatorjs'], link[href*='emulatorjs']").forEach(el => el.remove());
-  // Clear globals so next launch starts fresh
-  ["EJS_player","EJS_core","EJS_gameUrl","EJS_pathtodata","EJS_startOnLoaded",
-   "EJS_color","EJS_backgroundColor","EJS_disableAutoLang"].forEach(k => delete window[k]);
-}
-
-document.getElementById("emu-back").onclick = exitEmulator;
 document.getElementById("filter-pills").onclick = (e) => {
     if(e.target.classList.contains('pill')) {
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
