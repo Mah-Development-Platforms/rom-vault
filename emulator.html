@@ -61,25 +61,11 @@
   })();
 </script>
 </head>
-<body>
 
-<div id="topbar">
-  <a id="back-btn" href="index.html">← BACK TO VAULT</a>
-  <span id="game-title"></span>
+<body style="margin:0;padding:0;background:#000;">
+<div style="position:fixed;top:0;left:0;right:0;bottom:0;">
+  <div id="game" style="width:100%;height:100%;"></div>
 </div>
-
-<div id="game-wrap">
-  <div id="game"></div>
-</div>
-
-<script>
-  // Set the visible title from URL param
-  const p = new URLSearchParams(window.location.search);
-  document.getElementById("game-title").textContent = (p.get("title") || "").toUpperCase();
-</script>
-
-<!-- Load EmulatorJS LAST, after the DOM and all globals are ready -->
+<script>var p=new URLSearchParams(location.search);document.title=p.get("title")||"Game";</script>
 <script src="data/loader.js"></script>
-
-</body>
-</html>
+</body></html>
