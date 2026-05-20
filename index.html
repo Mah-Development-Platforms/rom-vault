@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE VAULT — Retro ROM Collection</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #10101a;
+      --surface2: #181825;
+      --border: #2a2a45;
+      --accent: #00ffc8;
+      --accent2: #ff4d8d;
+      --accent3: #ffe066;
+      --text: #e0e0f0;
+      --text-dim: #7070a0;
+      --scanline: rgba(0, 0, 0, 0.18);
+      --glow: 0 0 12px var(--accent), 0 0 40px rgba(0, 255, 200, 0.15);
+      --glow2: 0 0 12px var(--accent2), 0 0 40px rgba(255, 77, 141, 0.15);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* CRT scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(to bottom,
+          transparent 0px,
+          transparent 3px,
+          var(--scanline) 3px,
+          var(--scanline) 4px);
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+    }
+
+    /* Animated grid background */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 255, 200, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 200, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 2rem 3rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(0, 255, 200, 0.04) 0%, transparent 100%);
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .logo-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.5rem;
+      color: var(--accent);
+      text-shadow: var(--glow);
+      letter-spacing: 0.1em;
+      animation: flicker 6s infinite;
+    }
+
+    .logo-sub {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    @keyframes flicker {
+
+      0%,
+      94%,
+      96%,
+      100% {
+        opacity: 1;
+      }
+
+      95% {
+        opacity: 0.6;
+      }
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .stat-val {
+      color: var(--accent);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.85rem;
+    }
+
+    .controls {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem 3rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      flex-wrap: wrap;
+      background: var(--surface);
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-wrap::before {
+      content: '⌕';
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+
+    input[type="search"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      border-radius: 3px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="search"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0, 255, 200, 0.1);
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+
+    .pill.active {
+      background: rgba(0, 255, 200, 0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    main {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 2rem 3rem;
+      gap: 2rem;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+      overflow: hidden;
+      position: relative;
+      animation: fadeIn 0.3s ease both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--card-accent, var(--accent));
+    }
+
+    .card-art {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      background: var(--card-bg, var(--surface2));
+    }
+
+    .card-info {
+      padding: 0.65rem 0.75rem;
+    }
+
+    .card-name {
+      font-size: 0.65rem;
+      font-weight: 600;
+      font-family: 'Exo 2', sans-serif;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .emulator-frame {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-play {
+      background: var(--accent);
+      color: #000;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.65rem;
+      border: none;
+      padding: 0.75rem 1.75rem;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    footer {
+      padding: 1.5rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+    }
+
+    .footer-blink {
+      display: inline-block;
+      width: 8px;
+      height: 12px;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .sys-NES {
+      --card-accent: #ff4d8d;
+      --card-bg: #1a0f14;
+    }
+
+    .sys-A26 {
+      --card-accent: #ff8c42;
+      --card-bg: #1a0e00;
+    }
+
+    .sys-SNES {
+      --card-accent: #8a7cff;
+      --card-bg: #0f0d1a;
+    }
+
+    .sys-GB {
+      --card-accent: #8bac0f;
+      --card-bg: #0f1a0f;
+    }
+
+    .sys-GBC {
+      --card-accent: #ffb703;
+      --card-bg: #1a160d;
+    }
+
+    .sys-GBA {
+      --card-accent: #219ebc;
+      --card-bg: #0d181a;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <div class="logo-title">THE VAULT</div>
+      <div class="logo-sub">Retro ROM Collection — Est. 2024</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-val" id="lib-source"
+          style="font-size: 0.72rem; color: var(--accent2);">DEFAULT</span><span>DATABASE</span></div>
+      <div class="stat"><span class="stat-val" id="total-count">0</span><span>TITLES</span></div>
+      <div class="stat"><span class="stat-val" id="system-count">0</span><span>SYSTEMS</span></div>
+      <div class="stat"><span class="stat-val" id="visible-count">0</span><span>SHOWING</span></div>
+    </div>
+  </header>
+
+  <div class="controls" style="display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: center;">
+    <div class="search-wrap" style="grid-column: 1 / -1; width: 100%; margin-bottom: 0.5rem; margin-right: 0;">
+      <input type="search" id="search" placeholder="Search titles..." autocomplete="off">
+    </div>
+    <div class="filter-pills" id="filter-pills" style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+      <div class="pill active" data-system="ALL">All</div>
+      <div class="pill" data-system="NES">NES</div>
+      <div class="pill" data-system="A26">Atari 2600</div>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
+      <button class="pill" id="btn-import"
+        style="background: rgba(0, 255, 200, 0.08); border-color: var(--accent); color: var(--accent); font-weight: bold; text-shadow: 0 0 8px rgba(0,255,200,0.3); display: flex; align-items: center; gap: 6px;">📁
+        IMPORT ROMS</button>
+      <button class="pill" id="btn-clear"
+        style="display: none; background: rgba(255, 77, 141, 0.08); border-color: var(--accent2); color: var(--accent2); font-weight: bold;">✕
+        CLEAR CACHE</button>
+      <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
+    </div>
+  </div>
+
+  <main>
+    <div class="game-grid" id="game-grid">
+      <div class="empty-state" id="empty-state"
+        style="display:none; font-family:'Press Start 2P', monospace; font-size:0.8rem; text-align:center; padding:3rem 0; width:100%; grid-column: 1 / -1; color: var(--text-dim);">
+        NO GAMES FOUND</div>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" id="modal">
+      <div style="padding:1.5rem; display:flex; justify-content:space-between; border-bottom:1px solid var(--border);">
+        <h2 id="modal-name"></h2>
+        <button id="modal-close" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="padding:1.5rem;">
+        <div class="emulator-frame">
+          <div id="emu-placeholder">
+            <button class="btn-play" id="btn-play">▶ PLAY NOW</button>
+          </div>
+          <iframe id="emu-iframe" style="display:none; width:100%; height:100%; border:none;" allowfullscreen></iframe>
+        </div>
+        <p id="modal-desc" style="color:var(--text-dim); font-size:0.8rem;"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>THE VAULT &mdash; Personal ROM Archive</span>
+    <span>READY<span class="footer-blink"></span></span>
+  </footer>
+
+  <script>
+    // System definitions with their details
+    const SYSTEM_MAPPING = {
+      '.nes': { system: 'NES', core: 'nes', name: 'Nintendo Entertainment System' },
+      '.a26': { system: 'A26', core: 'atari2600', name: 'Atari 2600' },
+      '.bin': { system: 'A26', core: 'atari2600', name: 'Atari 2600' },
+      '.7z': { system: 'A26', core: 'atari2600', name: 'Atari 2600' },
+      '.smc': { system: 'SNES', core: 'snes9x', name: 'Super Nintendo' },
+      '.sfc': { system: 'SNES', core: 'snes9x', name: 'Super Nintendo' },
+      '.gb': { system: 'GB', core: 'gambatte', name: 'Game Boy' },
+      '.gbc': { system: 'GBC', core: 'gambatte', name: 'Game Boy Color' },
+      '.gba': { system: 'GBA', core: 'mgba', name: 'Game Boy Advance' }
+    };
+
+    // Rich Emoji mapping based on common keywords in retro titles
+    const EMOJI_MAP = {
+      'space': '🚀', 'star': '⭐', 'astro': '🚀', 'invader': '👾', 'alien': '👾', 'galaxy': '🌌',
+      'combat': '⚔️', 'raid': '⚔️', 'battle': '⚔️', 'war': '⚔️', 'attack': '⚔️', 'defense': '🛡️',
+      'boxing': '🥊', 'karate': '🥊', 'kung': '🥊', 'fight': '🥊', 'punch': '🥊', 'wrestle': '🤼',
+      'soccer': '⚽', 'football': '⚽', 'baseball': '⚾', 'tennis': '🎾', 'golf': '⛳', 'basketball': '🏀', 'hockey': '🏒',
+      'donkey': '🦍', 'kong': '🦍',
+      'spider': '🕷️', 'superman': '🦸', 'batman': '🦇', 'hero': '🦸',
+      'pac': '🍕', 'burger': '🍕', 'food': '🍕', 'cake': '🍰',
+      'motor': '🏍️', 'racer': '🏎️', 'race': '🏎️', 'speed': '🏎️', 'grand prix': '🏎️', 'drive': '🚗',
+      'adventure': '🛩️', 'quest': '🗺️', 'pitfall': '🧗',
+      'chase': '🐕', 'dog': '🐕', 'cat': '🐱', 'frog': '🐸', 'duck': '🦆', 'bird': '🐦', 'pig': '🐷',
+      'ghost': '👻', 'haunt': '👻', 'monster': '👹', 'frankenstein': '🧟', 'halloween': '🎃', 'vampire': '🦇',
+      'maze': '🌀', 'puzzle': '🧩', 'brick': '🧱', 'block': '🧱', 'cube': '🧊', 'pinball': '🎳',
+      'air': '✈️', 'fly': '✈️', 'copter': '🚁', 'plane': '✈️',
+      'sea': '🌊', 'ocean': '🌊', 'sub': '🚢', 'ship': '🚢', 'fish': '🐟',
+      'command': '🎖️', 'mission': '🎖️',
+      'wizard': '🧙', 'magic': '🪄', 'spell': '🪄',
+    };
+
+    // Keyword-based genre guessing
+    const GENRE_MAP = {
+      'shoot': 'Shooter', 'space': 'Shooter', 'invader': 'Shooter', 'blast': 'Shooter',
+      'combat': 'Action', 'battle': 'Action', 'war': 'Action', 'fight': 'Action', 'kung': 'Action', 'karate': 'Action',
+      'soccer': 'Sports', 'football': 'Sports', 'baseball': 'Sports', 'tennis': 'Sports', 'golf': 'Sports', 'basketball': 'Sports', 'hockey': 'Sports', 'boxing': 'Sports',
+      'racer': 'Racing', 'race': 'Racing', 'speed': 'Racing', 'drive': 'Racing', 'motor': 'Racing',
+      'adventure': 'Adventure', 'quest': 'Adventure', 'platformer': 'Platformer', 'pitfall': 'Platformer', 'mario': 'Platformer', 'donkey': 'Platformer',
+      'puzzle': 'Puzzle', 'maze': 'Puzzle', 'cube': 'Puzzle', 'math': 'Educational',
+    };
+
+    let GAMES = [];
+    let localFileMap = new Map(); // game.id -> File object (for browser scanner session play)
+    let activeSystem = "ALL";
+    let searchQuery = "";
+
+    function cleanName(filename) {
+      let name = filename.substring(0, filename.lastIndexOf('.')) || filename;
+      name = name.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '');
+      name = name.replace(/_/g, ' ');
+      name = name.replace(/\s+/g, ' ');
+      name = name.trim();
+
+      if (name.endsWith(', The')) {
+        name = 'The ' + name.slice(0, -5);
+      } else if (name.endsWith(', A')) {
+        name = 'A ' + name.slice(0, -3);
+      }
+      return name.trim();
+    }
+
+    function getEmoji(name) {
+      const ln = name.toLowerCase();
+      for (const [kw, emoji] of Object.entries(EMOJI_MAP)) {
+        if (ln.includes(kw)) return emoji;
+      }
+      return '🎮';
+    }
+
+    function getGenre(name) {
+      const ln = name.toLowerCase();
+      for (const [kw, genre] of Object.entries(GENRE_MAP)) {
+        if (ln.includes(kw)) return genre;
+      }
+      return 'Action';
+    }
+
+    // Render dynamic filter pills based on systems found in the loaded games
+    function renderFilters() {
+      const pillsContainer = document.getElementById("filter-pills");
+      const systems = new Set();
+      GAMES.forEach(g => {
+        if (g.system) systems.add(g.system);
+      });
+
+      pillsContainer.innerHTML = '';
+
+      // Create "All" pill
+      const allPill = document.createElement("div");
+      allPill.className = `pill ${activeSystem === 'ALL' ? 'active' : ''}`;
+      allPill.dataset.system = 'ALL';
+      allPill.textContent = 'All';
+      pillsContainer.appendChild(allPill);
+
+      const prettyNames = {
+        'NES': 'NES',
+        'A26': 'Atari 2600',
+        'SNES': 'Super Nintendo',
+        'GB': 'Game Boy',
+        'GBC': 'Game Boy Color',
+        'GBA': 'Game Boy Advance'
+      };
+
+      // Sort and append console systems
+      Array.from(systems).sort().forEach(sys => {
+        const pill = document.createElement("div");
+        pill.className = `pill ${activeSystem === sys ? 'active' : ''}`;
+        pill.dataset.system = sys;
+        pill.textContent = prettyNames[sys] || sys;
+        pillsContainer.appendChild(pill);
+      });
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById("game-grid");
+      const emptyState = document.getElementById("empty-state");
+      grid.querySelectorAll('.game-card').forEach(card => card.remove());
+
+      const filtered = GAMES.filter(g =>
+        (activeSystem === "ALL" || g.system === activeSystem) &&
+        (g.name.toLowerCase().includes(searchQuery))
+      );
+
+      if (filtered.length === 0) {
+        emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+        filtered.forEach(game => {
+          const card = document.createElement("div");
+          card.className = `game-card sys-${game.system}`;
+          card.innerHTML = `<div class="card-art">${game.emoji}</div><div class="card-info"><div class="card-name">${game.name}</div></div>`;
+          card.onclick = () => openModal(game);
+          grid.appendChild(card);
+        });
+      }
+
+      // Calculate dynamic stats
+      const uniqueSystems = new Set(GAMES.map(g => g.system));
+
+      document.getElementById("total-count").textContent = GAMES.length;
+      document.getElementById("system-count").textContent = uniqueSystems.size;
+      document.getElementById("visible-count").textContent = filtered.length;
+    }
+
+    function openModal(game) {
+      document.getElementById("modal-name").textContent = game.name;
+      document.getElementById("modal-desc").textContent = game.desc;
+      document.getElementById("modal-backdrop").classList.add("open");
+
+      document.getElementById("btn-play").onclick = () => {
+        closeModal();
+        launchEmulator(game);
+      };
+    }
+
+    function closeModal() { document.getElementById("modal-backdrop").classList.remove("open"); }
+    document.getElementById("modal-close").onclick = closeModal;
+
+    function launchEmulator(game) {
+      let romUrl = game.romUrl;
+
+      // Check if it's a locally imported file object URL
+      if (romUrl.startsWith('local-file:')) {
+        const gameId = romUrl.substring('local-file:'.length);
+        const file = localFileMap.get(gameId);
+
+        if (file) {
+          romUrl = URL.createObjectURL(file);
+          console.log("[*] Generated session blob URL for offline play:", romUrl);
+        } else {
+          const reauthorize = confirm("This local file session has expired. To play this game offline, please re-import your ROMs folder.");
+          if (reauthorize) {
+            document.getElementById("folder-input").click();
+          }
+          return;
+        }
+      }
+
+      const params = new URLSearchParams({
+        core: game.emuCore,
+        rom: romUrl,
+        title: game.name
+      });
+      window.location.href = "emulator.html?" + params.toString();
+    }
+
+    function updateUIWithLibrarySource(sourceName) {
+      const badge = document.getElementById("lib-source");
+      badge.textContent = sourceName.toUpperCase();
+
+      // Color code based on source
+      if (sourceName.toLowerCase().includes("json")) {
+        badge.style.color = "var(--accent)";
+      } else if (sourceName.toLowerCase().includes("scan")) {
+        badge.style.color = "var(--accent3)";
+        document.getElementById("btn-clear").style.display = "inline-block";
+      } else {
+        badge.style.color = "var(--accent2)";
+      }
+    }
+
+    // Scan folders using standard browser directory picker
+    async function handleFolderImport(files) {
+      const newGames = [];
+      localFileMap.clear();
+
+      const allowedExts = Object.keys(SYSTEM_MAPPING);
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const path = file.webkitRelativePath || file.name;
+        const ext = '.' + path.split('.').pop().toLowerCase();
+
+        if (allowedExts.includes(ext)) {
+          let mapping = SYSTEM_MAPPING[ext];
+          let sysId = mapping.system;
+          let core = mapping.core;
+          let sysName = mapping.name;
+
+          const lowerPath = path.toLowerCase();
+          if (lowerPath.includes('nes') || lowerPath.includes('nintendo')) {
+            sysId = 'NES';
+            core = 'nes';
+            sysName = 'Nintendo Entertainment System';
+          } else if (lowerPath.includes('atari') || lowerPath.includes('2600') || lowerPath.includes('a26')) {
+            sysId = 'A26';
+            core = 'atari2600';
+            sysName = 'Atari 2600';
+          }
+
+          const name = cleanName(file.name);
+          const emoji = getEmoji(name);
+          const genre = getGenre(name);
+
+          let year = 1980;
+          const yearMatch = path.match(/\((19[7-9]\d|200\d)\)/);
+          if (yearMatch) {
+            year = parseInt(yearMatch[1]);
+          }
+
+          let safeId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          const gameId = `${sysId.toLowerCase()}-${safeId}`;
+
+          // Store in memory map for file reference during this browser tab session
+          localFileMap.set(gameId, file);
+
+          newGames.push({
+            id: gameId,
+            name: name,
+            system: sysId,
+            year: year,
+            genre: genre,
+            emoji: emoji,
+            desc: `Classic {${sysName}} title: ${name}. (Offline import)`,
+            romUrl: `local-file:${gameId}`,
+            emuCore: core
+          });
+        }
+      }
+
+      if (newGames.length > 0) {
+        GAMES = newGames;
+        try {
+          localStorage.setItem('retro_rom_library', JSON.stringify(GAMES));
+        } catch (e) {
+          console.warn("[!] Browser storage quota warning:", e);
+        }
+
+        updateUIWithLibrarySource("Browser Scan");
+        renderFilters();
+        renderGrid();
+        alert(`[✓] Successfully imported ${GAMES.length} games from your ROMs directory!`);
+      } else {
+        alert("[!] No compatible retro ROMs found in the selected folder. Extensions supported: .nes, .7z, .bin, .smc, .sfc, .gb, .gbc, .gba");
+      }
+    }
+
+    // Database initialisation
+    async function initDatabase() {
+      // 1. Try to fetch roms.json (compiled via generate_library.py)
+      try {
+        const response = await fetch('roms.json');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            GAMES = data;
+            updateUIWithLibrarySource("roms.json");
+            renderFilters();
+            renderGrid();
+            return;
+          }
+        }
+      } catch (e) {
+        console.log("[*] Fetching roms.json failed (expected on local files). Checking cache...");
+      }
+
+      // 2. Try loading local scanned cache
+      try {
+        const cached = localStorage.getItem('retro_rom_library');
+        if (cached) {
+          const data = JSON.parse(cached);
+          if (Array.isArray(data) && data.length > 0) {
+            GAMES = data;
+            updateUIWithLibrarySource("Browser Scan");
+            renderFilters();
+            renderGrid();
+
+            // Show notification that they can drag their folder to restore playable file references
+            console.log("[*] Loaded offline database cache. Import the folder again to play local files.");
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Local storage read error:", e);
+      }
+
+      // 3. Fallback to default starter ROM
+      GAMES = [
+        { id: "a26-adventure", name: "Adventure", system: "A26", year: 1977, genre: "Action", emoji: "🛩️", desc: "Adventure.", romUrl: "roms/adventure.7z", emuCore: "atari2600" }
+      ];
+      updateUIWithLibrarySource("Default");
+      renderFilters();
+      renderGrid();
+    }
+
+    // Event Listeners
+    document.getElementById("filter-pills").onclick = (e) => {
+      if (e.target.classList.contains('pill')) {
+        document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        activeSystem = e.target.dataset.system;
+        renderGrid();
+      }
+    };
+
+    document.getElementById("search").oninput = (e) => {
+      searchQuery = e.target.value.toLowerCase();
+      renderGrid();
+    };
+
+    const folderInput = document.getElementById("folder-input");
+    document.getElementById("btn-import").onclick = () => folderInput.click();
+
+    folderInput.onchange = (e) => {
+      if (e.target.files.length > 0) {
+        handleFolderImport(e.target.files);
+      }
+    };
+
+    document.getElementById("btn-clear").onclick = () => {
+      if (confirm("Are you sure you want to clear your scanned local library?")) {
+        localStorage.removeItem('retro_rom_library');
+        localFileMap.clear();
+        initDatabase();
+        document.getElementById("btn-clear").style.display = "none";
+      }
+    };
+
+    // Start App
+    initDatabase();
+  </script>
+</body>
+
+</html>
