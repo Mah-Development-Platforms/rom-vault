@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>THE VAULT — Retro ROM Collection</title>
+  <title>THE RETRO VAULT</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap"
     rel="stylesheet">
@@ -391,8 +391,8 @@
 
   <header>
     <div class="logo">
-      <div class="logo-title">THE VAULT</div>
-      <div class="logo-sub">Retro ROM Collection — Est. 2026</div>
+      <div class="logo-title">THE RETRO VAULT</div>
+      <div class="logo-sub">A Retro Game Collection — Est. 2026</div>
     </div>
     <div class="header-stats">
       <div class="stat"><span class="stat-val" id="lib-source"
@@ -551,12 +551,7 @@
       pillsContainer.appendChild(allPill);
 
       const prettyNames = {
-        'NES': 'NES',
-        'A26': 'Atari 2600',
-        'SNES': 'Super Nintendo',
-        'GB': 'Game Boy',
-        'GBC': 'Game Boy Color',
-        'GBA': 'Game Boy Advance'
+        'A26': 'Atari 2600'
       };
 
       // Sort and append console systems
@@ -676,11 +671,7 @@
           let sysName = mapping.name;
 
           const lowerPath = path.toLowerCase();
-          if (lowerPath.includes('nes') || lowerPath.includes('nintendo')) {
-            sysId = 'NES';
-            core = 'nes';
-            sysName = 'Nintendo Entertainment System';
-          } else if (lowerPath.includes('atari') || lowerPath.includes('2600') || lowerPath.includes('a26')) {
+          if (lowerPath.includes('atari') || lowerPath.includes('2600') || lowerPath.includes('a26')) {
             sysId = 'A26';
             core = 'atari2600';
             sysName = 'Atari 2600';
