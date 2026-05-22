@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!--
+  Project: THE RETRO VAULT
+  File: index.html
+  Author: mahfran1998
+  Purpose: Retro ROM library browser UI
+  Date: 2026-05-22 @ 13:24
+  Notes: Header shows stats and READY cursor; footer contains import action.
+-->
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,6 +133,7 @@
       gap: 2rem;
       font-size: 0.7rem;
       color: var(--text-dim);
+      align-self: flex-end;
     }
 
     .stat {
@@ -335,12 +345,14 @@
       color: var(--text-dim);
     }
 
-    .footer-blink {
+    .status-blink {
       display: inline-block;
       width: 8px;
       height: 12px;
       background: var(--accent);
       animation: blink 1s step-end infinite;
+      margin-left: 0.4rem;
+      vertical-align: middle;
     }
 
     @keyframes blink {
@@ -401,6 +413,9 @@
       <div class="stat"><span class="stat-val" id="system-count">0</span><span>SYSTEMS</span></div>
       <div class="stat"><span class="stat-val" id="visible-count">0</span><span>SHOWING</span></div>
     </div>
+    <div class="header-ready" style="color:var(--accent); font-family: 'Press Start 2P', monospace; display:flex; align-items:flex-end; align-self:flex-end; gap:0px; font-size:0.5rem;">
+      <span>READY</span><span class="status-blink"></span>
+    </div>
   </header>
 
   <div class="controls" style="display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: center;">
@@ -412,9 +427,6 @@
       <div class="pill" data-system="A26">Atari 2600</div>
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
-      <button class="pill" id="btn-import"
-        style="background: rgba(0, 255, 200, 0.08); border-color: var(--accent); color: var(--accent); font-weight: bold; text-shadow: 0 0 8px rgba(0,255,200,0.3); display: flex; align-items: center; gap: 6px;">📁
-        IMPORT ROMS</button>
       <button class="pill" id="btn-clear"
         style="display: none; background: rgba(255, 77, 141, 0.08); border-color: var(--accent2); color: var(--accent2); font-weight: bold;">✕
         CLEAR CACHE</button>
@@ -450,7 +462,7 @@
 
   <footer>
     <span>THE VAULT &mdash; Personal ROM Archive</span>
-    <span>READY<span class="footer-blink"></span></span>
+    <button class="pill" id="btn-import" style="background: rgba(0, 255, 200, 0.08); border-color: var(--accent); color: var(--accent); font-weight: bold; text-shadow: 0 0 8px rgba(0,255,200,0.3); display: flex; align-items: center; gap: 6px;">📁 IMPORT ROMS</button>
   </footer>
 
   <script>
@@ -538,7 +550,7 @@
       const pillsContainer = document.getElementById("filter-pills");
       const systems = new Set();
       GAMES.forEach(g => {
-        if (g.system) systems.add(g.system);
+        if (g.system && g.system !== 'NES') systems.add(g.system);
       });
 
       pillsContainer.innerHTML = '';
