@@ -1,5 +1,7 @@
 name = "icd201-2026-sem2-a26-vault"
 compatibility_date = "2026-05-27"
+workers_dev = true
+preview_urls = false
 
 [assets]
 directory = "_site"
